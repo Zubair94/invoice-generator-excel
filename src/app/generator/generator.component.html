@@ -1,2 +1,26 @@
-<p>generator works!</p>
-<button mat-raised-button color="primary" (click)="test()" type="button">Alert</button>
+<h1 class="heading">Excel to PDF Generator</h1>
+<div class="grid-container">
+    <div class="grid-1">
+        <h4 class="sub-heading">Input excel file below:</h4>
+        <h4 class="error-msg">Error: {{isError ? errorMessage : "None"}}</h4>
+        <div class="dropzone" dragndrop (hovered)="toggleHover($event)" (dropped)="startUpload($event)" [class.hovering]="isHovering">
+            <h3>Drag n Drop a File</h3>
+            <h5>{{fileSelected?.name || "No Excel File Selected"}}</h5>
+            <button mat-raised-button color="primary" (click)="fileInput.click()" type="button">Browse</button>
+            <input hidden type="file" #fileInput (change)="startUpload($event.target.files)">
+        </div>
+    </div>
+    <div class="grid-2">
+        <h4 class="sub-heading">Input image below:</h4>
+        <h4 class="error-msg">Error: {{isErrorImage ? errorMessageImage : "None"}}</h4>
+        <div class="dropzone" dragndrop (hovered)="toggleHoverImage($event)" (dropped)="startUploadImage($event)" [class.hovering]="isHoveringImage">
+            <h3>Drag n Drop a File</h3>
+            <h5>{{fileSelectedImage?.name || "No Image File Selected"}}</h5>
+            <button mat-raised-button color="primary" (click)="fileInputImage.click()" type="button">Browse</button>
+            <input hidden type="file" #fileInputImage (change)="startUploadImage($event.target.files)">
+        </div> 
+    </div>
+</div>
+<div>
+    <button mat-raised-button color="primary" (click)="onGeneratePDF()" type="button">Generate</button>
+</div>

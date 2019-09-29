@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MaterialModule } from './modules/material.module';
+import { DragndropDirective } from './directives/dragndrop.directive';
 
 
 
 @NgModule({
-  declarations: [],
+  declarations: [DragndropDirective],
   imports: [
     CommonModule,
     RouterModule,
@@ -20,7 +21,8 @@ import { MaterialModule } from './modules/material.module';
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
-    MaterialModule
+    MaterialModule,
+    DragndropDirective
   ]
 })
 export class SharedModule { }
