@@ -14,10 +14,16 @@
     "typeRoots": [
       "node_modules/@types"
     ],
+    "types": ["node", "jszip", "file-saver"],
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "jszip": [
+        "node_modules/jszip/dist/jszip.min.js"
+      ]
+    }
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,

@@ -3,7 +3,9 @@ import { AlertService } from '../core/services/alert.service';
 import * as XLSX from 'xlsx';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+import * as JSZip from 'jszip';
+import { saveAs } from 'file-saver';
+pdfMake.vfs = pdfFonts.pdfMake.vfs
 pdfMake.fonts = {
   NotoSansBengali: {
     normal: 'NotoSansBengaliRegular.ttf',
@@ -36,7 +38,13 @@ export class GeneratorComponent implements OnInit {
   isHoveringImage: boolean = false;
   errorMessageImage: string = "";
   excelObj: any;
-  constructor(private alertService: AlertService) { }
+  pdffile: JSZip;
+  pdffolder: JSZip;
+  generated: boolean = false;
+  showProgress: boolean = false;
+  constructor(private alertService: AlertService) { 
+    
+  }
 
   ngOnInit() {
   }
@@ -147,13 +155,56 @@ export class GeneratorComponent implements OnInit {
     });
   }
 
-  onGeneratePDF(){
-    const documentDefinition = this.documentDefinition(); 
-    pdfMake.createPdf(documentDefinition).download();
+  private generatePDF(documentObj: any): Promise<boolean>{
+    const documentDefinition = this.documentDefinition(documentObj); 
+    let pdfDocGenerator = pdfMake.createPdf(documentDefinition);
+    return new Promise(resolve => {
+      pdfDocGenerator.getBase64(base64String => {
+        this.pdffolder.file(documentObj['Invoice No'], base64String, {base64: true});
+        resolve(true);
+      });
+    });
   }
 
-  private documentDefinition(){
+  onGeneratePDF(){
+    if(!this.fileSelected || !this.fileSelectedImage || this.fileSelected === null || this.fileSelectedImage === null){
+      this.alertService.warning("Please select an excel file and image first.", "Error");
+    } else{
+      this.showProgress = true;
+      this.pdffile = new JSZip();
+      this.pdffolder = this.pdffile.folder('invoices');
+      let promises = [];
+      for(var i =0; i<this.excelObj.length; i++){
+        if(this.excelObj[i]['Customer Name']){
+          promises.push(this.generatePDF(this.excelObj[i]));
+        }
+      }
+      Promise.all(promises).then(result => {
+        if(result.length > 0){
+          this.generated = true;
+          this.showProgress = false;
+          this.alertService.success("Invoice generation complete.", "Success");
+        }
+      });
+    }
+  }
+
+  async onDownload(){
+    let content = await this.pdffile.generateAsync({type:"blob"});
+    saveAs(content, "invoices.zip");
+    if(content){
+      this.generated = false;
+      this.showProgress = false;
+    }
+  }
+
+  private documentDefinition(documentObj: any){
     return {
+      info:{
+        title: documentObj['Invoice No'],
+        author: 'togumogu.com',
+        subject: 'invoice'
+      },
       pageSize: 'A4',
       // by default we use portrait, you can change it to landscape if you wish
       pageOrientation: 'portrait',
@@ -203,15 +254,15 @@ export class GeneratorComponent implements OnInit {
               stack: [
                 {
                   style: 'h6',
-                  text: 'Customer Name: '+this.excelObj[0]['Customer Name']
+                  text: 'Customer Name: '+documentObj['Customer Name']
                 },
                 {
                   style: 'h6',
-                  text: this.excelObj[0]['Delivery Address']
+                  text: documentObj['Delivery Address']
                 },
                 {
                   style: 'h6',
-                  text: 'Mobile: '+this.excelObj[0]['Mobile Number']
+                  text: 'Mobile: '+documentObj['Mobile Number']
                 },
               ] 
             },
@@ -221,7 +272,7 @@ export class GeneratorComponent implements OnInit {
               stack: [
                 {
                   style: 'h6',
-                  text: 'Invoice No: '+this.excelObj[0]['Invoice No']
+                  text: 'Invoice No: '+documentObj['Invoice No']
                 },
                 {
                   style: 'h6',
@@ -229,15 +280,15 @@ export class GeneratorComponent implements OnInit {
                 },
                 {
                   style: 'h6',
-                  text: 'Order No: '+this.excelObj[0]['Order No']
+                  text: 'Order No: '+documentObj['Order No']
                 },
                 {
                   style: 'h6',
-                  text: 'Order Date: '+this.excelObj[0]['Order Date']
+                  text: 'Order Date: '+documentObj['Order Date']
                 },
                 {
                   style: 'h6',
-                  text: 'Payment Method: '+this.excelObj[0]['Payment Method']
+                  text: 'Payment Method: '+documentObj['Payment Method']
                 }
               ] 
             }
@@ -247,7 +298,7 @@ export class GeneratorComponent implements OnInit {
           style: 'tableExample',
           table: {
             widths: [25, 275, 60, 60, 50],
-            body: this.excelObj[0].products
+            body: documentObj.products
           }
         },
         {
@@ -267,7 +318,7 @@ export class GeneratorComponent implements OnInit {
                   width: '*',
                   alignment: 'right',
                   style: 'h6',
-                  text: 'Tk.'+this.excelObj[0]['Subtotal']
+                  text: 'Tk.'+documentObj['Subtotal']
                 }
               ]
             },
@@ -283,7 +334,7 @@ export class GeneratorComponent implements OnInit {
                   width: '*',
                   alignment: 'right',
                   style: 'h6',
-                  text: 'Tk.'+this.excelObj[0]['Flat Shipping Rate']
+                  text: 'Tk.'+documentObj['Flat Shipping Rate']
                 }
               ]
             },
@@ -299,7 +350,7 @@ export class GeneratorComponent implements OnInit {
                   width: '*',
                   alignment: 'right',
                   style: 'h6',
-                  text: '-Tk.'+this.excelObj[0]['Discount']
+                  text: '-Tk.'+documentObj['Discount']
                 }
               ]
             },
@@ -309,13 +360,13 @@ export class GeneratorComponent implements OnInit {
                   width: 'auto',
                   alignment: 'left',
                   style: 'h6',
-                  text: 'Promo Code('+this.excelObj[0]['Promo Name']+'):'
+                  text: 'Promo Code('+documentObj['Promo Name']+'):'
                 },
                 {
                   width: '*',
                   alignment: 'right',
                   style: 'h6',
-                  text: '-Tk.'+this.excelObj[0]['Promo Discount']
+                  text: '-Tk.'+documentObj['Promo Discount']
                 }
               ]
             },
@@ -331,7 +382,7 @@ export class GeneratorComponent implements OnInit {
                   width: '*',
                   alignment: 'right',
                   style: 'h6',
-                  text: 'Tk.'+this.excelObj[0]['GrandTotal']
+                  text: 'Tk.'+documentObj['GrandTotal']
                 }
               ]
             }

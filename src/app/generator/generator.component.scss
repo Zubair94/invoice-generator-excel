@@ -52,3 +52,19 @@
         padding: 3%;
     }
 }
+.button-div{
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    button{
+        margin-right: 5px;
+    }
+}
+.progress-div{
+    h6{
+        font-weight: 500;
+        margin: 0;
+    }
+    padding: 3%;
+}

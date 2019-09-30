@@ -21,6 +21,11 @@
         </div> 
     </div>
 </div>
-<div>
-    <button mat-raised-button color="primary" (click)="onGeneratePDF()" type="button">Generate</button>
+<div *ngIf="!showProgress" class="button-div">
+    <button [disabled]="generated" mat-raised-button color="primary" (click)="onGeneratePDF()" type="button">Generate</button>
+    <button [disabled]="!generated" mat-raised-button color="primary" (click)="onDownload()" type="button">Save</button>
+</div>
+<div class="progress-div" *ngIf="showProgress">
+    <h5>Generating Invoices...</h5>
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
 </div>
