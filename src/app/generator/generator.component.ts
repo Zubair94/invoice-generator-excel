@@ -202,7 +202,7 @@ export class GeneratorComponent implements OnInit {
     return {
       info:{
         title: documentObj['Invoice No'],
-        author: 'togumogu.com',
+        author: 'invoice',
         subject: 'invoice'
       },
       pageSize: 'A4',
@@ -227,19 +227,19 @@ export class GeneratorComponent implements OnInit {
               stack: [
                 {
                   style: 'h6',
-                  text: 'Rezina Garden, House 67/A,'
+                  text: 'address address, House address,'
                 },
                 {
                   style: 'h6',
-                  text: 'Road 9/A, Dhanmondi'
+                  text: 'Road road, Address'
                 },
                 {
                   style: 'h6',
-                  text: 'Dhaka, Bangladesh'
+                  text: 'Address, Address'
                 },
                 {
                   style: 'h6',
-                  text: 'Mobile: +880194-4665577'
+                  text: 'Mobile: Mobile'
                 }
               ]
             }

@@ -89,7 +89,7 @@
       ]
     },
     "portable": {
-      "artifactName": "pvmplayer_portable.exe"
+      "artifactName": "Excel2PDF.exe"
     },
     "mac": {
       "icon": "pdf.ico",
