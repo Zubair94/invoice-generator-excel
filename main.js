@@ -11,11 +11,11 @@ function createWindow(){
     homeWindow = new BrowserWindow({width: 1024, height: 768});
     homeWindow.setMenu(null);
     homeWindow.loadURL(url.format({
-        pathname: path.join(__dirname, '/dist/index.html'),
+        pathname: path.join(__dirname, 'dist/index.html'),
         protocol: 'file',
         slashes: true
     }));
-    homeWindow.webContents.openDevTools();
+    //homeWindow.webContents.openDevTools();
        
     homeWindow.on('closed', () => {
         homeWindow = null;

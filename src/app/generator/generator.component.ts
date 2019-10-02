@@ -116,7 +116,7 @@ export class GeneratorComponent implements OnInit {
         for(var i=0; i<obj.length; i++){
           let index = 0;
           let products = [
-            [{text: '#', sytle: 'tableHeader'}, {text: 'Product', sytle: 'tableHeader'}, {text: 'Quantity', sytle: 'tableHeader'}, {text: 'Unit Cost', sytle: 'tableHeader'}, {text: 'Amount', sytle: 'tableHeader'}]
+            [{text: '#', sytle: 'tableHeader'}, {text: 'Product', sytle: 'tableHeader'}, {text: 'Quantity', sytle: 'tableHeader'}, {text: 'Unit Price', sytle: 'tableHeader'}, {text: 'Amount', sytle: 'tableHeader'}]
           ];
           Object.keys(obj[i]).forEach(key => {
             if(key.includes('Product')){
@@ -137,7 +137,11 @@ export class GeneratorComponent implements OnInit {
                 product.push(obj[i][key]);
                 delete obj[i][key];
               }
-              if(key === `${"Unit Cost"}${j}` || key === `${"Total"}${j}`){
+              if(key === `${"Unit price"}${j}`){
+                product.push({text: 'Tk.' + obj[i][key].toString(), alignment: 'right'});
+                delete obj[i][key];
+              }
+              if(key === `${"Total"}${j}`){
                 product.push({text: 'Tk.' + obj[i][key].toString(), alignment: 'right'});
                 delete obj[i][key];
               }
@@ -155,12 +159,30 @@ export class GeneratorComponent implements OnInit {
     });
   }
 
+  private generateRandom(){
+    let length = 7;
+    let result           = '';
+    let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let charactersLength = characters.length;
+    for (var i = 0; i < length; i++){
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  }
+
   private generatePDF(documentObj: any): Promise<boolean>{
+    let date = new Date(Date.now()).toLocaleDateString();
+    let splitdate = date.split('/');
+    if(!documentObj['Order Date'] || documentObj['Order Date'] === ''){
+      documentObj['Order Date'] = date;
+    }
+    documentObj['Order No'] = `${"GF-"}${splitdate[1]}${splitdate[0]}${splitdate[2]}${"-"}${this.generateRandom()}`;
+    documentObj['Invoice No'] = `${this.generateRandom()}`;
     const documentDefinition = this.documentDefinition(documentObj); 
     let pdfDocGenerator = pdfMake.createPdf(documentDefinition);
     return new Promise(resolve => {
-      pdfDocGenerator.getBase64(base64String => {
-        this.pdffolder.file(documentObj['Invoice No'], base64String, {base64: true});
+      pdfDocGenerator.getBase64((base64String:string) => {
+        this.pdffolder.file(documentObj['Invoice No']+'.pdf', base64String, {base64: true});
         resolve(true);
       });
     });
@@ -218,6 +240,8 @@ export class GeneratorComponent implements OnInit {
               stack:[
                 {
                   image: this.fileBufferImage,
+                  width: 200,
+                  height: 75
                 }
               ]
             },
@@ -258,11 +282,11 @@ export class GeneratorComponent implements OnInit {
                 },
                 {
                   style: 'h6',
-                  text: documentObj['Delivery Address']
+                  text: documentObj['Customer Address']
                 },
                 {
                   style: 'h6',
-                  text: 'Mobile: '+documentObj['Mobile Number']
+                  text: 'Mobile: '+documentObj['Customer Mobile']
                 },
               ] 
             },
@@ -350,23 +374,7 @@ export class GeneratorComponent implements OnInit {
                   width: '*',
                   alignment: 'right',
                   style: 'h6',
-                  text: '-Tk.'+documentObj['Discount']
-                }
-              ]
-            },
-            {
-              columns:[
-                {
-                  width: 'auto',
-                  alignment: 'left',
-                  style: 'h6',
-                  text: 'Promo Code('+documentObj['Promo Name']+'):'
-                },
-                {
-                  width: '*',
-                  alignment: 'right',
-                  style: 'h6',
-                  text: '-Tk.'+documentObj['Promo Discount']
+                  text: '-Tk.'+ documentObj['Discount'] || '0'
                 }
               ]
             },

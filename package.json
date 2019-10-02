@@ -6,8 +6,11 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "electron": "ng build --prod --base-href ./ && electron .",
+    "electron:dev": "ng build --prod --base-href ./ && electron .",
     "electron:start": "electron .",
+    "electron:win": "ng build --prod --base-href ./ && electron-builder build --windows",
+    "electron:linux": "ng build --prod --base-href ./ && electron-builder build --linux",
+    "electron:mac": "ng build --prod --base-href ./ && electron-builder build --mac",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
@@ -26,6 +29,7 @@
     "@angular/platform-browser": "~8.2.8",
     "@angular/platform-browser-dynamic": "~8.2.8",
     "@angular/router": "~8.2.8",
+    "file-saver": "^2.0.2",
     "hammerjs": "^2.0.8",
     "ngx-toastr": "^11.0.0",
     "pdfmake": "^0.1.60",
@@ -43,9 +47,8 @@
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "~8.9.4",
     "codelyzer": "^5.0.0",
-    "electron": "^6.0.10",
+    "electron": "^6.0.11",
     "electron-builder": "^21.2.0",
-    "electron-packager": "^14.0.6",
     "jasmine-core": "~3.4.0",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~4.1.0",
@@ -59,11 +62,10 @@
     "typescript": "~3.5.3"
   },
   "build": {
-    "productName": "angular-electron",
-    "appId": "com.example.companyDashboard",
+    "productName": "Excel2PDF",
+    "appId": "com.lohtech.excel2pdf",
     "directories": {
-      "output": "release",
-      "buildResources": "dist"
+      "output": "release/"
     },
     "asar": false,
     "files": [
@@ -85,20 +87,20 @@
     "win": {
       "icon": "pdf.ico",
       "target": [
-        "portable"
+        "nsis"
       ]
     },
-    "portable": {
-      "artifactName": "pvmplayer_portable.exe"
+    "nsis": {
+      "artifactName": "Excel2PDF.exe"
     },
     "mac": {
-      "icon": "pdf.ico",
+      "icon": "pdf.png",
       "target": [
         "dmg"
       ]
     },
     "linux": {
-      "icon": "pdf.ico",
+      "icon": "pdf.png",
       "target": [
         "AppImage"
       ]
